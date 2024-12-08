@@ -3,26 +3,26 @@
 #include <cstdlib> // for rand() and srand()
 #include <ctime>   // for time()
 #include <fstream> // for file operations
-
 using namespace std;
 
-// This number is based on the number of categories based on the text file.
-const int max_Categories = 100;
+const int MAX_CATEGORIES = 100; // Adjust this number based on your needs
+
 int main()
 {
 
     // Declaring Variables
     string team_A, team_B;
-    int categoriesCount = 0;
-    string categories[max_Categories];
-    int team_ScoreA, team_ScoreB, selected_Number, totalGussess = 0;
-    const int maxPoints = 20;
+    int chosenNumber, guess, totalGuesses = 0;
+    int scoreA = 0, scoreB = 0;
     const int rounds = 3;
+    const int maxPoints = 20;
+    string categories[MAX_CATEGORIES];
+    int categoryCount = 0;
 
-    // Creating the Random Seed Generator
+    // Initialize Random Seed
     srand(time(0));
 
-    // Introduction / Instructions of the Game
+    // Introduction/Instructions
     cout << "+----- Welcome to WaveLengt! -----+\n\n";
     cout << "CIT102 Project: Wavelength Project\n\n";
     cout << "Created By: Shervin Elibox\n\n";
@@ -31,118 +31,120 @@ int main()
     cout << "Each team selects a guesser while the other team picks the number and gives a clue from a random category." << endl;
     cout << "The guesser ranks the clue from 1 to 10, trying to match the team's chosen number." << endl;
     cout << "This happens for 3 clues, and the average guess is calculated." << endl;
-    cout << endl;
+    cout<<endl;
 
-    cout << "Press any Key to continue" << endl;
-    cin.get();
+    cout << "Press Enter to Continue...";
+    cin.get(); // Wait for the User to Press Enter
 
-    // Prompting team_A to Select their Guesser
-    cout << "Team A select your Guesser to go Against Team B" << endl;
+    // Clearing the screen
+    system("CLS");
+
+
+    // Prompt Team A to select their Guesser Name
+    cout << "Notice only two teams can play at a time." << endl;
+    cout<<endl;
+    cout<<endl;
+    cout << "Team A, select your guesser: ";
     cin >> team_A;
 
-    // Place Code At Bottom
-    // Prompting team_B to select their Guesser
-    cout << "Team B select your Gusser to go Against Team A" << endl;
+    // Prompt Team B to select their Guesser Name
+    cout << "Team B, select your guesser: ";
     cin >> team_B;
 
-    // Reading the categories text file
+
+    // Reading categories from file
     ifstream inFile("Categories.txt");
     if (inFile.is_open())
     {
         string line;
-        while (getline(inFile, line) && categoriesCount < max_Categories)
+        while (getline(inFile, line) && categoryCount < MAX_CATEGORIES)
         {
-
-            categories[categoriesCount++] = line;
+            categories[categoryCount++] = line;
         }
         inFile.close();
     }
     else
     {
-        cout << "Unable to Open the Categories.txt file " << endl;
+        cout << "Unable to open file Categories.txt" << endl;
         return 1;
     }
-
-    // Clearing the Screen to commence game session
+// Clear screen
     system("CLS");
 
-    // The Main Game Loop
-    while (team_ScoreA < maxPoints && team_ScoreB < maxPoints)
+    // Main game loop
+    while (scoreA < maxPoints && scoreB < maxPoints)
     {
+        // Team B's turn to select a number for Team A to guess
+        totalGuesses = 0;
 
-        totalGussess = 0;
+        // Team B chooses a number
+        cout << "Team B, select a random number (1-10): ";
+        cin >> chosenNumber;
 
-        // Team B is now selecting a number for Team A
-        cout << "Team B, Select a random number between (1-10): " << endl;
-        cin >> selected_Number;
-
-        // Validating the number chosen by Team
-
-        while (selected_Number < 1 || selected_Number > 10)
+        // Validate chosenNumber for Team B
+        while (chosenNumber < 1 || chosenNumber > 10)
         {
             cout << "Invalid number. Please select a number between 1 and 10: ";
-            cin >> selected_Number;
+            cin >> chosenNumber;
         }
 
-// Clearing the Screen to commence the game
+        // Clear the screen
 #ifdef _WIN32
         system("CLS");
 #else
         system("clear");
 #endif
-    }
 
-    // Team A makes guesses based on the clues provided by Team B
-    cout << "Team A, Its your turn to Guess" << endl;
-    cout << endl;
-
-    for (int i = 1; i < rounds; i++)
-    {
-
-        string category = categories[rand() % categoriesCount];
-        cout << "Round" << i + 1 << ": Categories -" << category << endl;
-
-        // Prompts Team B to provide a clue
-        string clue;
-        cout << "Team B, Please provide a clue based on the number " << selected_Number << endl;
-        cin.ignore();
-        getline(cin, clue);
-
-        // Prompt Team A's Guesser to make a guess
-        int Guess;
-        cout << "Team A Member: " << team_A << ", based on the clue provided" << endl;
-        cin >> Guess;
-
-        // validate guess
-        while (Guess < 1 || Guess > 10)
+        // Team A makes guesses based on clues from Team B
+        cout << "Team A, it's your turn to guess based on the clues provided by Team B." << endl;
+        cout<<endl;
+        for (int i = 0; i < rounds; i++)
         {
-            cout << "Invaild Guess. Please guess a number between (1-10)" << endl;
-            cin >> Guess;
+            // Display random category
+            string category = categories[rand() % categoryCount];
+            cout << "Round " << i + 1 << ": Category - " << category << endl;
+
+            // Prompt Team B to provide a clue
+            string clue;
+            cout << "Team B, provide a clue based on the number " << chosenNumber << ": ";
+            cin.ignore();
+            getline(cin, clue);
+
+            // Prompt Team A's guesser to make a guess
+            int guess;
+            cout << "Team A Member: " << team_A << ", based on the clue \"" << clue << "\", what is your guess (between 1 and 10)?: ";
+
+            cin >> guess;
+
+            // Validate guess
+            while (guess < 1 || guess > 10)
+            {
+                cout << "Invalid guess. Please guess a number between 1 and 10: ";
+                cin >> guess;
+            }
+
+            totalGuesses += guess;
+
+            system("CLS");
         }
 
-        totalGussess += Guess;
-
-        // Clearing the Screen
-        system("CLS");
-
-        // Caluclating the Average Guess for Team A
-        int averageGuessA = totalGussess / rounds;
-        cout << "Average guess for team a: " << averageGuessA << endl;
+        // Calculate the average guess for Team A
+        int averageGuessA = totalGuesses / rounds;
+        cout << "Average guess: " << averageGuessA << endl;
 
         // Calculate the difference for Team A's average guess
-        int difference_TeamA = abs(averageGuessA - selected_Number);
+        int differenceA = abs(averageGuessA - chosenNumber);
 
-        // Scoring Logic Based on the difference for Team A
-
-        if (difference_TeamA == 0)
+        // Scoring logic based on the difference for Team A
+        if (differenceA == 0)
         {
             cout << "Exact match! Team A earns 2 points." << endl;
-            team_ScoreA += 2; // Exact match, 2 points
+            scoreA += 2; // Exact match, 2 points
         }
-        else if (difference_TeamA == 1)
+        else if (differenceA == 1)
         {
-            cout << "Exact match! Team A earns 2 points." << endl;
-            team_ScoreA += 1; // Exact match, 2 points
+            cout << "Close match! Team A earns 1 point." << endl;
+            scoreA += 1; // Close match, 1 point
         }
         else
         {
@@ -150,27 +152,95 @@ int main()
         }
 
         // Team A's turn to select a number for Team B to guess
-        totalGussess = 0;
+        totalGuesses = 0;
 
-        // Team A choses a Number for team B
-        cout << "Team B, Select a random number between (1-10): " << endl;
-        cin >> selected_Number;
+        // Team A chooses a number
+        cout << "Team A, select a random number (1-10): ";
+        cin >> chosenNumber;
 
-        while (selected_Number < 1 || selected_Number > 10)
+        // Validate chosenNumber for Team A
+        while (chosenNumber < 1 || chosenNumber > 10)
         {
             cout << "Invalid number. Please select a number between 1 and 10: ";
-            cin >> selected_Number;
+            cin >> chosenNumber;
         }
 
-        // Clearing the Screen 
-
-        #ifdef _WIN32
+        // Clear the screen
+#ifdef _WIN32
         system("CLS");
-        #else
+#else
         system("clear");
-        #endif
+#endif
 
-        // Team B makes guesses based on the clues provided by Team A
-        
+
+        // Team B makes guesses based on clues from Team A
+        cout << "Team B, it's your turn to guess based on the clues provided by Team A." << endl;
+        for (int i = 0; i < rounds; i++)
+        {
+            // Display random category
+            string category = categories[rand() % categoryCount];
+            cout << "Round " << i + 1 << ": Category - " << category << endl;
+
+            // Prompt Team A to provide a clue
+            string clue;
+            cout << "Team A, provide a clue based on the number " << chosenNumber << ": ";
+            cin.ignore();
+            getline(cin, clue);
+
+            // Prompt Team B's guesser to make a guess
+            int guess;
+            cout << "Team A Member: " << team_B << ", based on the clue \"" << clue << "\", what is your guess (between 1 and 10)?: ";
+            cin >> guess;
+
+            // Validate guess
+            while (guess < 1 || guess > 10)
+            {
+                cout << "Invalid guess. Please guess a number between 1 and 10: ";
+                cin >> guess;
+            }
+
+            totalGuesses += guess;
+
+              system("CLS");
+        }
+
+        // Calculate the average guess for Team B
+        int averageGuessB = totalGuesses / rounds;
+        cout << "Average guess: " << averageGuessB << endl;
+
+        // Calculate the difference for Team B's average guess
+        int differenceB = abs(averageGuessB - chosenNumber);
+
+        // Scoring logic based on the difference for Team B
+        if (differenceB == 0)
+        {
+            cout << "Exact match! Team B earns 2 points." << endl;
+            scoreB += 2; // Exact match, 2 points
+        }
+        else if (differenceB == 1)
+        {
+            cout << "Close match! Team B earns 1 point." << endl;
+            scoreB += 1; // Close match, 1 point
+        }
+        else
+        {
+            cout << "No points earned this round." << endl;
+        }
+
+        // Display current scores
+        cout << "Team A score: " << scoreA << endl;
+        cout << "Team B score: " << scoreB << endl;
     }
+
+    // Declare the winner
+    if (scoreA >= maxPoints)
+    {
+        cout << "Congratulations Team A, you won the game!" << endl;
+    }
+    else
+    {
+        cout << "Congratulations Team B, you won the game!" << endl;
+    }
+
+    return 0;
 }
